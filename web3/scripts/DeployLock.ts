@@ -1,4 +1,4 @@
-import  hre, { network }  from "hardhat";
+import  { network }  from "hardhat";
 import { parseEther } from "viem";
 
 async function main() {
