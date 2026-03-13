@@ -2,36 +2,32 @@
 
 pragma solidity ^0.8.19;
 
+import "./Ownable.sol";
+import "./Pausable.sol";
 
-contract TodoList {
+
+contract TodoList is Ownable, Pausable {
     struct Todo {
         string title;
         bool isCompleted;
         uint id;
     }
 
-    address public owner;
+
     Todo[] public todos;
     mapping(uint => Todo) public todoById;
 
     event TodoAdded(uint indexed id, string title);
     event TodoCompleted(uint indexed id);
 
-    constructor() {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can perform this action");
-        _;
-    }
+    
 
     modifier todoExists(uint _id) {
         require(_id < todos.length, "Todo does not exist");
         _;
     }
 
-    function addTodo(string memory _title) public onlyOwner {
+    function addTodo(string memory _title) public onlyOwner notPaused {
         require(bytes(_title).length > 0, "Title cannot be empty");
         uint id = todos.length;
         Todo memory newTodo = Todo({
