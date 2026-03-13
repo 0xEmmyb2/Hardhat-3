@@ -49,4 +49,8 @@ contract ProductStore is Ownable, Pausable {
         products[productId].isAvailable = !products[productId].isAvailable;
         emit AvailabilityChanged(productId, products[productId].isAvailable);
     }
+
+    function deleteProduct(uint productId) public onlyOwner notPaused productExists(productId){
+        require(product[productId].isAvailable, "Product does not exist");
+    }
 }

@@ -6,19 +6,28 @@ import "./Ownable.sol";
 import "./Pausable.sol";
 
 
-contract TodoList is Ownable, Pausable {
-    struct Todo {
-        string title;
-        bool isCompleted;
-        uint id;
-    }
+struct Todo {
+    string title;
+    bool isCompleted;
+    uint id;
+}
 
 
-    Todo[] public todos;
-    mapping(uint => Todo) public todoById;
-
+interface ITodoList {
     event TodoAdded(uint indexed id, string title);
     event TodoCompleted(uint indexed id);
+
+    function addTodo(string memory _title) external;
+    function completeTodo(uint _id) external;
+    function getAllTodos() external view returns(Todo[] memory);
+    function getTodoById(uint _id) external view returns(uint, string memory, bool);
+    function getTotalTodos() external view returns(uint);
+}
+
+
+contract TodoList is Ownable,ITodoList,Pausable {
+    Todo[] public todos;
+    mapping(uint => Todo) public todoById;
 
     
 
@@ -27,7 +36,7 @@ contract TodoList is Ownable, Pausable {
         _;
     }
 
-    function addTodo(string memory _title) public onlyOwner notPaused {
+    function addTodo(string memory _title) external onlyOwner notPaused {
         require(bytes(_title).length > 0, "Title cannot be empty");
         uint id = todos.length;
         Todo memory newTodo = Todo({
@@ -40,7 +49,7 @@ contract TodoList is Ownable, Pausable {
         emit TodoAdded(id, _title);
     }
 
-    function completeTodo(uint _id) public onlyOwner todoExists(_id) {
+    function completeTodo(uint _id) external onlyOwner notPaused todoExists(_id) {
         require(!todoById[_id].isCompleted, "Todo is already completed");
         todos[_id].isCompleted = !todos[_id].isCompleted;
         todoById[_id].isCompleted = !todoById[_id].isCompleted;
@@ -48,16 +57,16 @@ contract TodoList is Ownable, Pausable {
     }
 
 
-    function getAllTodos() public view returns(Todo[] memory) {
+    function getAllTodos() external view returns(Todo[] memory) {
         return todos;
     }
 
-    function getTodoById(uint _id) public view todoExists(_id) returns(uint, string memory, bool) {
+    function getTodoById(uint _id) external view todoExists(_id) returns(uint, string memory, bool) {
         Todo memory todo = todoById[_id];
         return (todo.id, todo.title, todo.isCompleted);
     }
 
-    function getTotalTodos() public view returns(uint) {
+    function getTotalTodos() external view returns(uint) {
         return todos.length;
     }
 }
