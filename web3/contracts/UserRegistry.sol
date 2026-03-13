@@ -39,7 +39,23 @@ contract UserRegistry {
             isRegistered: true
         });
 
-        totalUsers++;
         emit UserRegistered(msg.sender, _name, "", age);
+        totalUsers++;
+    }
+
+    function updateName(string memory newName) public {
+        require(users[msg.sender].isRegistered, "User not registered");
+        require(bytes(newName).length > 0, "Name cannot be empty");
+        users[msg.sender].name = newName;
+        emit UserUpdated(msg.sender, newName);
+    }
+
+
+    function getUser(address wallet) public view returns(string memory, uint, bool) {
+        return (
+            users[wallet].name,
+            users[wallet].age,
+            users[wallet].isRegistered,
+        );
     }
 }
