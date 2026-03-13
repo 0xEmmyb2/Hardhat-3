@@ -22,11 +22,7 @@ contract UserRegistry {
     constructor() {
         owner = msg.sender;
     }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can call this function");
-        _;
-    }
+    
 
     function registerUser(string memory _name,uint age) public {
         require(!users[msg.sender].isRegistered, "User already registered");'

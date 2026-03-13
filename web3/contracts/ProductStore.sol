@@ -21,8 +21,12 @@ contract ProductStore {
         owner = msg.sender;
     }
 
-    function addProduct(string memory _name, uint _price) public {
-        require(msg.sender == owner, "Only owner can add products");
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can perform this action");
+        _;
+    }
+
+    function addProduct(string memory _name, uint _price) public onlyOwner{
         require(bytes(_name).length > 0, "Product name cannot be empty");
         require(_price > 0, "Price must be greater than zero");
 
@@ -42,8 +46,7 @@ contract ProductStore {
         return (product.name, product.price, product.isAvailable);
     }
 
-    function toggleAvailability(uint productId) public {
-        require(msg.sender == owner, "Only owner can change availability");
+    function toggleAvailability(uint productId) public onlyOwnero {
         require(productId < totalProducts, "Product does not exist");
         products[productId].isAvailable = !products[productId].isAvailable;
         emit AvailabilityChanged(productId, products[productId].isAvailable);
