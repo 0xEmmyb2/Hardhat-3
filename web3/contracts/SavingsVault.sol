@@ -5,27 +5,36 @@ import "./Ownable.sol";
 
 
 contract SavingsVault is Ownable {
-    uint public totalSavings;
+    mapping(address => uint) public balances;
+    uint public totalVaultBalance;
 
     event Deposit(address indexed sender, uint amount);
     event Withdrawal(address indexed recipient, uint amount);
 
     receive() external payable {
-        (bool success,) = payable(msg.sender).call{value: msg.value}("");
-        require(success, "Deposit failed");
+        balances[msg.sender] += msg.value;
+        totalVaultBalance += msg.value;
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw() public onlyOwner {
-        require(totalSavings > 0, "No savings to withdraw");
-        uint amountToWithdraw = totalSavings;
-        totalSavings = 0;
-        (bool success,) = payable(msg.sender).call{value: totalSavings}("");
+    function deposit() public payable {
+        require(msg.value > 0, "Must send ETH");
+        balances[msg.sender] += msg.value;
+        totalVaultBalance += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw() public {
+        require(totalVaultBalance > 0, "No savings to withdraw");
+        uint amountToWithdraw = balances[msg.sender];
+        totalVaultBalance -= amountToWithdraw;
+        (bool success,) = payable(msg.sender).call{value: amountToWithdraw}("");
         require(success, "Withdrawal failed");
         emit Withdrawal(msg.sender, amountToWithdraw);
     }
 
     function getMyBalance() public view returns(uint) {
-        return totalSavings;
+        return balances[msg.sender];
     }
+}
 
