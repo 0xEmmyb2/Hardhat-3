@@ -1,24 +1,23 @@
 //SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.19;
+import "./Ownable.sol";
 
-contract MessageStore {
+contract MessageStore is Ownable {
     string public message;
-    address public owner;
-
+    
 
     event MessageUpdated(string oldMessage, string newMessage);
 
     constructor(string memory initialMessage) {
         message = initialMessage;
-        owner = msg.sender;
     }
 
-    function updateMessage(string memory newMessage) public {
-        require(msg.sender == owner, "Only the owner is allowed to update the message");
+    function updateMessage(string memory newMessage) public onlyOwner {
         require(bytes(newMessage).length > 0, "Message cannot be empty");
+        string memory oldMessage = message;
         message = newMessage;
-        emit MessageUpdated(message, newMessage);
+        emit MessageUpdated(oldMessage, newMessage);
     }
 
     function getMessage() public view returns(string memory) {
