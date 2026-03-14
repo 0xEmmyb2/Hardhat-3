@@ -10,9 +10,9 @@ contract SavingsVault is Ownable {
     event Deposit(address indexed sender, uint amount);
     event Withdrawal(address indexed recipient, uint amount);
 
-    function deposit() public payable {
-        require(msg.value > 0, "You must send some ether to deposit");
-        totalSavings += msg.value;
+    receive() external payable {
+        (bool success,) = payable(msg.sender).call{value: msg.value}("");
+        require(success, "Deposit failed");
         emit Deposit(msg.sender, msg.value);
     }
 
@@ -20,9 +20,9 @@ contract SavingsVault is Ownable {
         require(totalSavings > 0, "No savings to withdraw");
         uint amountToWithdraw = totalSavings;
         totalSavings = 0;
-        (bool success,) = payable(recipient).call{value: totalSavings}("");
+        (bool success,) = payable(msg.sender).call{value: totalSavings}("");
         require(success, "Withdrawal failed");
-        emit Withdrawal(recipient, amountToWithdraw);
+        emit Withdrawal(msg.sender, amountToWithdraw);
     }
 
     function getMyBalance() public view returns(uint) {
