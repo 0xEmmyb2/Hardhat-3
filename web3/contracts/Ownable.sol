@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.19;
 
+error NotOwner;
 
 contract Ownable {
     address public owner;
@@ -11,7 +12,7 @@ contract Ownable {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only owner can perform this action");
+        if(msg.sender != owner) revert NotOwner();
         _;
     }
 }

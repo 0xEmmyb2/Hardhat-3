@@ -4,6 +4,14 @@ pragma solidity ^0.8.19;
 import "./Ownable.sol";
 
 
+//Custom Errors
+error NotOwner(address caller);
+error InsufficientBalance(uint requested, uint available);
+error ZeroAmount();
+error TransferFailed();
+error ZeroDeposit();
+
+
 contract SavingsVault is Ownable {
     mapping(address => uint) public balances;
     uint public totalVaultBalance;
@@ -11,30 +19,35 @@ contract SavingsVault is Ownable {
     event Deposit(address indexed sender, uint amount);
     event Withdrawal(address indexed recipient, uint amount);
 
-    receive() external payable {
-        balances[msg.sender] += msg.value;
-        totalVaultBalance += msg.value;
-        emit Deposit(msg.sender, msg.value);
+    constructor() {
+        owner = msg.sender;
     }
 
+    modifier onlyOwner() {
+        if(msg.sender != owner) revert NotOwner(msg.sender);
+        _;
+    }
+
+    
+
     function deposit() public payable {
-        require(msg.value > 0, "Must send ETH");
+        if(msg.value == 0) revert ZeroDeposit();
 
         balances[msg.sender] += msg.value;
         totalVaultBalance += msg.value;
-        
+
         emit Deposit(msg.sender, msg.value);
     }
 
     function withdraw(uint amount) public {
-        require(amount > 0, "Amount must be greater than zero");
-        require(balances[msg.sender] >= amount, "Insufficient balance!");
+        if(msg.value == 0) revert ZeroDeposit();
+       if(balancess[msg.sender] < amount) revert InsufficientBalance(amount, balances[msg.sender]);
 
         balances[msg.sender] -= amount;
         totalVaultBalance -= amount;
 
         (bool success,) = payable(msg.sender).call{value: amount  }("");
-        require(success, "Withdrawal failed");
+        if(!success) revert TransferFailed();
         emit Withdrawal(msg.sender, amount);
     }
 
@@ -44,6 +57,13 @@ contract SavingsVault is Ownable {
 
     function getTotalVaultBalance() public view returns(uint) {
         return address(this).balance;
+    }
+
+    receive() external payable {
+        if(msg.value == 0) revert ZeroDeposit();
+        balances[msg.sender] += msg.value;
+        totalVaultBalance += msg.value;
+        emit Deposit(msg.sender, msg.value);
     }
 }
 

@@ -12,6 +12,13 @@ struct Todo {
     uint id;
 }
 
+//Custom Error
+error TodoNotFound(uint id);
+error Unauthorized();
+error InvalidTitle();
+error TodoAlreadyCompleted(uint id);
+
+
 
 interface ITodoList {
     event TodoAdded(uint indexed id, string title);
@@ -32,12 +39,12 @@ contract TodoList is Ownable,ITodoList,Pausable {
     
 
     modifier todoExists(uint _id) {
-        require(_id < todos.length, "Todo does not exist");
+        if(_id >= todos.length) revert TodoNotFound(_id);
         _;
     }
 
     function addTodo(string memory _title) external onlyOwner notPaused {
-        require(bytes(_title).length > 0, "Title cannot be empty");
+        if(bytes(_title).length == 0) revert InvalidTitle();
         uint id = todos.length;
         Todo memory newTodo = Todo({
             title: _title,
@@ -50,7 +57,7 @@ contract TodoList is Ownable,ITodoList,Pausable {
     }
 
     function completeTodo(uint _id) external onlyOwner notPaused todoExists(_id) {
-        require(!todoById[_id].isCompleted, "Todo is already completed");
+        if(todos[_id].isCompleted) revert TodoAlreadyCompleted(_id);
         todos[_id].isCompleted = !todos[_id].isCompleted;
         todoById[_id].isCompleted = !todoById[_id].isCompleted;
         emit TodoCompleted(_id);
