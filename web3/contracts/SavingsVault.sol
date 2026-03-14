@@ -19,22 +19,31 @@ contract SavingsVault is Ownable {
 
     function deposit() public payable {
         require(msg.value > 0, "Must send ETH");
+
         balances[msg.sender] += msg.value;
         totalVaultBalance += msg.value;
+        
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw() public {
-        require(totalVaultBalance > 0, "No savings to withdraw");
-        uint amountToWithdraw = balances[msg.sender];
-        totalVaultBalance -= amountToWithdraw;
-        (bool success,) = payable(msg.sender).call{value: amountToWithdraw}("");
+    function withdraw(uint amount) public {
+        require(amount > 0, "Amount must be greater than zero");
+        require(balances[msg.sender] >= amount, "Insufficient balance!");
+
+        balances[msg.sender] -= amount;
+        totalVaultBalance -= amount;
+
+        (bool success,) = payable(msg.sender).call{value: amount  }("");
         require(success, "Withdrawal failed");
-        emit Withdrawal(msg.sender, amountToWithdraw);
+        emit Withdrawal(msg.sender, amount);
     }
 
     function getMyBalance() public view returns(uint) {
         return balances[msg.sender];
+    }
+
+    function getTotalVaultBalance() public view returns(uint) {
+        return address(this).balance;
     }
 }
 
