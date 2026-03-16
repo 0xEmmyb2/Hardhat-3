@@ -38,8 +38,8 @@ contract ProductStore is Ownable, Pausable, ReentrancyGuard {
     
 
     function addProduct(string memory _name, uint _price) public onlyOwner whenNotPaused nonReentrant {
-        if(bytes(_name).length > 0) revert InvalidName();
-        if(_price > 0) revert InvalidPrice();
+        if(bytes(_name).length == 0) revert InvalidName();
+        if(_price == 0) revert InvalidPrice();
 
         products[totalProducts] = Product({
             name: _name,
