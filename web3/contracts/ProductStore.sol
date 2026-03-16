@@ -1,11 +1,18 @@
 //SPDX-License-Identifier: UNLICENSED
 
 pragma solidity ^0.8.19;
-import "./Ownable.sol";
-import "./Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
-contract ProductStore is Ownable, Pausable {
+//Custom Errors
+error InvalidName();
+error InvalidPrice();
+error ProductNotFound(uint productId);
+
+
+contract ProductStore is Ownable, Pausable, ReentrancyGuard {
     struct Product {
         string name;
         uint price;
@@ -17,18 +24,22 @@ contract ProductStore is Ownable, Pausable {
     
     event ProductAdded(uint indexed productId, string name, uint price);
     event AvailabilityChanged(uint indexed productId, bool isAvailable);
+    event ProductDeleted(uint indexed productId);
+
+
+    constructor() Ownable(msg.sender) {}
 
 
     modifier productExists(uint productId) {
-        require(productId < totalProducts, "Product does not exist");
+       if(productId >= totalProducts || bytes(products[productId].name).length == 0) revert ProductNotFound(productId);
         _;
     }
 
     
 
-    function addProduct(string memory _name, uint _price) public onlyOwner whenNotPaused { {
-        require(bytes(_name).length > 0, "Product name cannot be empty");
-        require(_price > 0, "Price must be greater than zero");
+    function addProduct(string memory _name, uint _price) public onlyOwner whenNotPaused nonReentrant {
+        if(bytes(_name).length > 0) revert InvalidName();
+        if(_price > 0) revert InvalidPrice();
 
         products[totalProducts] = Product({
             name: _name,
@@ -45,13 +56,21 @@ contract ProductStore is Ownable, Pausable {
         return (product.name, product.price, product.isAvailable);
     }
 
-    function toggleAvailability(uint productId) public onlyOwner notPaused productExists(productId) {
+    function toggleAvailability(uint productId) public onlyOwner whenNotPaused productExists(productId) {
         products[productId].isAvailable = !products[productId].isAvailable;
         emit AvailabilityChanged(productId, products[productId].isAvailable);
     }
 
-    function deleteProduct(uint productId) public onlyOwner notPaused productExists(productId){
-        require(product[productId].isAvailable, "Product does not exist");
+    function deleteProduct(uint productId) public onlyOwner whenNotPaused productExists(productId){
         delete products[productId];
+         emit ProductDeleted(productId);
+    }
+
+    function pauseStore() public onlyOwner {
+        _pause();
+    }
+
+    function unpauseStore() public onlyOwner{
+        _unpause();
     }
 }
