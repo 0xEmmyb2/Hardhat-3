@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.19;
 
-import "./Ownable.sol";
-import "./Pausable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 
 struct Todo {
@@ -36,14 +36,14 @@ contract TodoList is Ownable,ITodoList,Pausable {
     Todo[] public todos;
     mapping(uint => Todo) public todoById;
 
-    
+    constructor() Ownable(msg.sender) {}
 
     modifier todoExists(uint _id) {
         if(_id >= todos.length) revert TodoNotFound(_id);
         _;
     }
 
-    function addTodo(string memory _title) external onlyOwner notPaused {
+    function addTodo(string memory _title) external onlyOwner whenNotPaused {
         if(bytes(_title).length == 0) revert InvalidTitle();
         uint id = todos.length;
         Todo memory newTodo = Todo({
@@ -56,7 +56,7 @@ contract TodoList is Ownable,ITodoList,Pausable {
         emit TodoAdded(id, _title);
     }
 
-    function completeTodo(uint _id) external onlyOwner notPaused todoExists(_id) {
+    function completeTodo(uint _id) external onlyOwner whenNotPaused todoExists(_id) {
         if(todos[_id].isCompleted) revert TodoAlreadyCompleted(_id);
         todos[_id].isCompleted = !todos[_id].isCompleted;
         todoById[_id].isCompleted = !todoById[_id].isCompleted;
