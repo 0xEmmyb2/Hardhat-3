@@ -26,7 +26,7 @@ contract ProductStore is Ownable, Pausable {
 
     
 
-    function addProduct(string memory _name, uint _price) public onlyOwner notPaused  {
+    function addProduct(string memory _name, uint _price) public onlyOwner whenNotPaused { {
         require(bytes(_name).length > 0, "Product name cannot be empty");
         require(_price > 0, "Price must be greater than zero");
 
