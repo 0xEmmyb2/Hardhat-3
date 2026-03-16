@@ -12,7 +12,7 @@ struct Todo {
     uint id;
 }
 
-//Custom Error
+//Custom Errors Handling
 error TodoNotFound(uint id);
 error Unauthorized();
 error InvalidTitle();
