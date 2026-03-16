@@ -31,9 +31,9 @@ contract SavingsVault is Ownable, ReentrancyGuard, Pausable {
         emit Deposit(msg.sender, msg.value);
     }
 
-    function withdraw(uint amount) public {
+    function withdraw(uint amount) public payable nonReentrant whenNotPaused {
         if(msg.value == 0) revert ZeroDeposit();
-       if(balancess[msg.sender] < amount) revert InsufficientBalance(amount, balances[msg.sender]);
+       if(balances[msg.sender] < amount) revert InsufficientBalance(amount, balances[msg.sender]);
 
         balances[msg.sender] -= amount;
         totalVaultBalance -= amount;
