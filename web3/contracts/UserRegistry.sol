@@ -5,6 +5,8 @@ pragma solidity ^0.8.19;
 
 
 contract UserRegistry {
+
+    //Defining the User and the attributes of the user
     struct User{
         string name;
         string email;
@@ -24,6 +26,7 @@ contract UserRegistry {
     }
     
 
+    //Registry of the user
     function registerUser(string memory _name,uint age) public {
         require(!users[msg.sender].isRegistered, "User already registered");
         require(bytes(_name).length > 0, "Name cannot be empty");
@@ -39,6 +42,7 @@ contract UserRegistry {
         totalUsers++;
     }
 
+    //Changing the username of the user
     function updateName(string memory newName) public {
         require(users[msg.sender].isRegistered, "User not registered");
         require(bytes(newName).length > 0, "Name cannot be empty");
