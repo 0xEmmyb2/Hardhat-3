@@ -9,9 +9,7 @@ contract MessageStore is Ownable {
 
     event MessageUpdated(string oldMessage, string newMessage);
 
-    constructor(string memory initialMessage) {
-        message = initialMessage;
-    }
+    constructor (string memory initialMessage) Ownable(msg.sender) {}
 
     function updateMessage(string memory newMessage) public onlyOwner {
         require(bytes(newMessage).length > 0, "Message cannot be empty");
