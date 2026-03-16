@@ -21,7 +21,9 @@ contract SavingsVault is Ownable, ReentrancyGuard, Pausable {
     event Withdrawal(address indexed recipient, uint amount);
 
     constructor() Ownable(msg.sender) {}    
+    
 
+    //The deposit of ETH into the vault
     function deposit() public payable {
         if(msg.value == 0) revert ZeroDeposit();
 
@@ -30,7 +32,9 @@ contract SavingsVault is Ownable, ReentrancyGuard, Pausable {
 
         emit Deposit(msg.sender, msg.value);
     }
+    
 
+    //Withdrawal of ETH from the vault
     function withdraw(uint amount) public payable nonReentrant whenNotPaused {
         if(msg.value == 0) revert ZeroDeposit();
        if(balances[msg.sender] < amount) revert InsufficientBalance(amount, balances[msg.sender]);
