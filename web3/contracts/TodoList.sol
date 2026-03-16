@@ -20,6 +20,8 @@ error TodoAlreadyCompleted(uint id);
 
 
 
+
+//The interfaces of our contract 
 interface ITodoList {
     event TodoAdded(uint indexed id, string title);
     event TodoCompleted(uint indexed id);
@@ -42,7 +44,9 @@ contract TodoList is Ownable,ITodoList,Pausable {
         if(_id >= todos.length) revert TodoNotFound(_id);
         _;
     }
+    
 
+    //Adding Todos to the list
     function addTodo(string memory _title) external onlyOwner whenNotPaused {
         if(bytes(_title).length == 0) revert InvalidTitle();
         uint id = todos.length;
@@ -55,7 +59,9 @@ contract TodoList is Ownable,ITodoList,Pausable {
         todoById[id] = newTodo;
         emit TodoAdded(id, _title);
     }
+    
 
+    //Marking the todo as completed
     function completeTodo(uint _id) external onlyOwner whenNotPaused todoExists(_id) {
         if(todos[_id].isCompleted) revert TodoAlreadyCompleted(_id);
         todos[_id].isCompleted = !todos[_id].isCompleted;
