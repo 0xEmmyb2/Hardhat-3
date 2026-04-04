@@ -3,7 +3,7 @@ import hardhatViem from "@nomicfoundation/hardhat-viem";
 
 const config: HardhatUserConfig = {
   plugins: [hardhatViem],
-  solidity: "0.8.28",
+  solidity: "0.8.19",
   networks: {
     localhost: {
       type: "http",
