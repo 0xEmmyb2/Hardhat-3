@@ -8,6 +8,7 @@ pragma solidity ^0.8.19;
 error UserAlreadyRegistered();
 error UserNotLegible(); 
 error InvalidName();
+error UserNotAlreadyRegistered();
 
 
 contract UserRegistry {
