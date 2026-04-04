@@ -4,6 +4,11 @@
 pragma solidity ^0.8.19;
 
 
+//Custom errors
+error AlreadyRegistered();
+error NotLegible(); 
+
+
 contract UserRegistry {
 
     //Defining the User and the attributes of the user
@@ -28,9 +33,9 @@ contract UserRegistry {
 
     //Registry of the user
     function registerUser(string memory _name,uint age) public {
-        require(!users[msg.sender].isRegistered, "User already registered");
+        if (!users[msg.sender].isRegistered) revert AlreadyRegistered();
         require(bytes(_name).length > 0, "Name cannot be empty");
-        require(age >= 18, "You must be at least 18 years old");
+        if (age >= 18) revert NotLegible();
         users[msg.sender] =  User({
             name: _name,
             email: "",
