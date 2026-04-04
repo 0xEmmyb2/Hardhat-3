@@ -5,8 +5,9 @@ pragma solidity ^0.8.19;
 
 
 //Custom errors
-error AlreadyRegistered();
-error NotLegible(); 
+error UserAlreadyRegistered();
+error UserNotLegible(); 
+error InvalidName();
 
 
 contract UserRegistry {
@@ -33,9 +34,9 @@ contract UserRegistry {
 
     //Registry of the user
     function registerUser(string memory _name,uint age) public {
-        if (!users[msg.sender].isRegistered) revert AlreadyRegistered();
-        require(bytes(_name).length > 0, "Name cannot be empty");
-        if (age >= 18) revert NotLegible();
+        if (users[msg.sender].isRegistered) revert UserAlreadyRegistered();
+        if (bytes(_name).length == 0) revert InvalidName();
+        if (age < 18) revert UserNotLegible();
         users[msg.sender] =  User({
             name: _name,
             email: "",
@@ -50,7 +51,7 @@ contract UserRegistry {
     //Changing the username of the user
     function updateName(string memory newName) public {
         require(users[msg.sender].isRegistered, "User not registered");
-        require(bytes(newName).length > 0, "Name cannot be empty");
+        if (bytes(newName).length == 0) revert InvalidName();
         users[msg.sender].name = newName;
         emit UserUpdated(msg.sender, newName, users[msg.sender].email, users[msg.sender].age);
     }
