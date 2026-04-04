@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
+import {ITodoList} from "./interfaces/ITodoList.sol";
 
 
 struct Todo {
@@ -17,8 +18,6 @@ error TodoNotFound(uint id);
 error Unauthorized();
 error InvalidTitle();
 error TodoAlreadyCompleted(uint id);
-
-
 
 
 
