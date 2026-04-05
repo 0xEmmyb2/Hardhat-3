@@ -51,16 +51,16 @@ contract UserRegistry {
 
     //Changing the username of the user
     function updateName(string memory newName) public {
-        require(users[msg.sender].isRegistered, "User not registered");
+        if(!users[msg.sender].isRegistered) revert UserNotAlreadyRegistered();
         if (bytes(newName).length == 0) revert InvalidName();
         users[msg.sender].name = newName;
         emit UserUpdated(msg.sender, newName, users[msg.sender].email, users[msg.sender].age);
     }
 
 
-    function getUser(address wallet) public view returns(string memory, uint, bool) {
+    function getUser(address wallet) public view returns(string memory, string memory, uint, bool) {
         return (
-            users[wallet].name,users[wallet].age,users[wallet].isRegistered
+            users[wallet].name,users[wallet].email,users[wallet].age,users[wallet].isRegistered
         );
     }
 }
